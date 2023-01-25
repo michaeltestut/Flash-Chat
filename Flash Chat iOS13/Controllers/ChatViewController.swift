@@ -53,11 +53,13 @@ class ChatViewController: UIViewController {
                 K.FStore.senderField: messageSender,
                 K.FStore.bodyField: messageBody,
                 K.FStore.dateField:Date()
+                
             ]){(error) in
                 if let e = error{
                     print("There was an error saving data to Firestore: \(e)")
                 } else{
                     print("Success!")
+                    self.messageTextfield.text=""
                 }
             }
         }
@@ -81,8 +83,21 @@ extension ChatViewController:UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let message = messages[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: K.cellIdentifier, for: indexPath) as! MessageCell
-        cell.label.text=messages[indexPath.row].body
+        cell.label.text=message.body
+        if message.sender == Auth.auth().currentUser?.email{
+            cell.leftImageView.isHidden = true
+            cell.rightImageView.isHidden = false
+            cell.messageBubble.backgroundColor=UIColor(named: K.BrandColors.lightPurple)
+            cell.label.textColor=UIColor(named: K.BrandColors.purple)
+        }
+        else{
+            cell.rightImageView.isHidden=true
+            cell.leftImageView.isHidden = false
+            cell.messageBubble.backgroundColor=UIColor(named: K.BrandColors.purple)
+            cell.label.textColor=UIColor(named: K.BrandColors.lightPurple)
+        }
         return cell
     }
     
