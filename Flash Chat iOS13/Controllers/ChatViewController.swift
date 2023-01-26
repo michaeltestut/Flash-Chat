@@ -16,18 +16,19 @@ class ChatViewController: UIViewController {
     let db=Firestore.firestore()
     
     var messages:[Message]=[]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource=self
         title=K.appName
         navigationItem.hidesBackButton=true
         tableView.register(UINib(nibName: K.cellNibName, bundle: nil), forCellReuseIdentifier: K.cellIdentifier)
-        loadMessages()
+        loadMessages(false)
     }
-    func loadMessages(){
+    func loadMessages(_ animation:Bool){
         db.collection(K.FStore.collectionName)
             .order(by: "date")
-            .addSnapshotListener { querySnapshot, error in
+            .getDocuments { querySnapshot, error in
             self.messages=[]
             if let e = error{
                 print("There was an issue retrieving data from firestore \(e)")
@@ -40,6 +41,8 @@ class ChatViewController: UIViewController {
                             self.messages.append(newMessage)
                             DispatchQueue.main.async {
                                 self.tableView.reloadData()
+                                let indexPath=IndexPath(row: self.messages.count-1, section: 0)
+                                self.tableView.scrollToRow(at: indexPath, at: .top, animated: animation)
                             }
                         }
                     }
@@ -59,10 +62,13 @@ class ChatViewController: UIViewController {
                     print("There was an error saving data to Firestore: \(e)")
                 } else{
                     print("Success!")
-                    self.messageTextfield.text=""
+                    DispatchQueue.main.async {
+                        self.messageTextfield.text=""
+                    }
                 }
             }
         }
+        loadMessages(true)
     }
     
     @IBAction func logOutPressed(_ sender: UIBarButtonItem) {
