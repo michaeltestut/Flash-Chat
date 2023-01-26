@@ -14,7 +14,10 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var passwordTextfield: UITextField!
     
     @IBOutlet weak var errorLabel: UILabel!
-    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationController?.navigationBar.tintColor=UIColor.white
+    }
     @IBAction func loginPressed(_ sender: UIButton) {
         if let email = emailTextfield.text, let password=passwordTextfield.text{
             Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
